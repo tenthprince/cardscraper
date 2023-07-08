@@ -7,10 +7,12 @@ scraping the card name, some info, regular price and foil price and dumping it i
 ## Features
 Right now we have a dinky interface (its a button) that will tell you of errors and when is complete. The program runs chromedriver headless, 
 it grabs your pre-registered urls in 
-> cardlist.csv
-and shortens them to a much more managable size, and outputs the new url at the end of each appropriate line
+`cardlist.csv`
+and shortens them to a much more manageable size, and outputs the new url at the end of each appropriate line
 scraped data for now includes (card name) (card number) (rarity) (market price) (foil price) (url)
 **important to note that if the card only has a foil version, it will be scraped as only one price- thus placing it into (market price)**
+This data is then placed into:
+`card_prices.csv`
 
 ## Future
 I'd like to continue to evolve this project, but it is something in my free time that currently works, so not a ton of motivation to advance immediately.
