@@ -26,7 +26,7 @@ class CardScraperApp(QtWidgets.QWidget):
         self.loading_label.setText("Loading...")
 
         try:
-            subprocess.run(['python', 'Magic.py'], check=True)
+            subprocess.run(['python', 'magic.py'], check=True)
             self.loading_label.setText("Complete")
         except subprocess.CalledProcessError:
             self.loading_label.setText("Error occurred")
