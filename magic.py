@@ -33,72 +33,75 @@ driver = webdriver.Chrome(service=Service(chrome_driver_path), options=chrome_op
 # Set maximum wait time for locating elements
 wait = WebDriverWait(driver, 20)
 
-# Read the CSV file
-with open(csv_file_path, 'r') as csvfile:
-    reader = csv.reader(csvfile)
-    next(reader)  # Skip the header row
-    for row in reader:
-        # Extract the URL from the row
-        card_url = row[0]
 
-        # Skip if the URL is empty
-        if not card_url:
-            continue
+def main():
+    # Read the CSV file
+    with open(csv_file_path, 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  # Skip the header row
+        for row in reader:
+            # Extract the URL from the row
+            card_url = row[0]
 
-        # Load the card's page
-        driver.get(card_url)
+            # Skip if the URL is empty
+            if not card_url:
+                continue
 
-        # Perform any necessary actions to trigger JavaScript rendering
-        # Scroll to the bottom of the page
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            # Load the card's page
+            driver.get(card_url)
 
-        # Wait for the card name element to be present in the DOM
-        card_name_element = wait.until(ec.presence_of_element_located((By.CSS_SELECTOR, "h1.product-details__name")))
+            # Perform any necessary actions to trigger JavaScript rendering
+            # Scroll to the bottom of the page
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
-        # Extract the card name
-        card_name = card_name_element.text.strip()
+            # Wait for the card name element to be present in the DOM
+            card_name_element = wait.until(
+                ec.presence_of_element_located((By.CSS_SELECTOR, "h1.product-details__name")))
 
-        # Wait for the card details element to be present in the DOM
-        card_details_element = wait.until(
-            ec.presence_of_element_located((By.CSS_SELECTOR, "ul.product__item-details__attributes")))
+            # Extract the card name
+            card_name = card_name_element.text.strip()
 
-        # Extract the card details
-        card_details = card_details_element.text.strip()
+            # Wait for the card details element to be present in the DOM
+            card_details_element = wait.until(
+                ec.presence_of_element_located((By.CSS_SELECTOR, "ul.product__item-details__attributes")))
 
-        # Extract the card number
-        card_number = ''
-        card_number_match = re.search(r'#:(\w+)', card_details)
-        if card_number_match:
-            card_number = card_number_match.group(1)
+            # Extract the card details
+            card_details = card_details_element.text.strip()
 
-        # Extract the rarity
-        rarity = ''
-        rarity_match = re.search(r'Rarity:\s*([A-Z]+)', card_details)
-        if rarity_match:
-            rarity = rarity_match.group(1)
+            # Extract the card number
+            card_number = ''
+            card_number_match = re.search(r'#:(\w+)', card_details)
+            if card_number_match:
+                card_number = card_number_match.group(1)
 
-        # Wait for the price elements to be present in the DOM
-        price_elements = wait.until(ec.presence_of_all_elements_located((By.CSS_SELECTOR, "div.charts-price")))
+            # Extract the rarity
+            rarity = ''
+            rarity_match = re.search(r'Rarity:\s*([A-Z]+)', card_details)
+            if rarity_match:
+                rarity = rarity_match.group(1)
 
-        # Extract the regular price
-        market_price = price_elements[0].text if price_elements else 'N/A'
+            # Wait for the price elements to be present in the DOM
+            price_elements = wait.until(ec.presence_of_all_elements_located((By.CSS_SELECTOR, "div.charts-price")))
 
-        # Extract the foil price if available
-        foil_price = price_elements[1].text if len(price_elements) > 1 else 'N/A'
+            # Extract the regular price
+            market_price = price_elements[0].text if price_elements else 'N/A'
 
-        # Adjust the card_url
-        adjusted_card_url = card_url.rsplit('/', 1)[0] + '/'
+            # Extract the foil price if available
+            foil_price = price_elements[1].text if len(price_elements) > 1 else 'N/A'
 
-        # Add the adjusted_card_url to the scraped data list
-        scraped_data.append([card_name, card_number, rarity, market_price, foil_price, adjusted_card_url])
+            # Adjust the card_url
+            adjusted_card_url = card_url.rsplit('/', 1)[0] + '/'
 
-# Quit the WebDriver
-driver.quit()
+            # Add the adjusted_card_url to the scraped data list
+            scraped_data.append([card_name, card_number, rarity, market_price, foil_price, adjusted_card_url])
 
-# Save the scraped data in the CSV file
-with open(csv_filename, 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(csv_header)
-    writer.writerows(scraped_data)
+    # Quit the WebDriver
+    driver.quit()
 
-print(f"Scraped data saved in '{csv_filename}'")
+    # Save the scraped data in the CSV file
+    with open(csv_filename, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(csv_header)
+        writer.writerows(scraped_data)
+
+    print(f"Scraped data saved in '{csv_filename}'")

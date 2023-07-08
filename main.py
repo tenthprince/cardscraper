@@ -1,6 +1,7 @@
 import sys
 import subprocess
 from PyQt5 import QtCore, QtWidgets
+from magic import main as do_magic
 
 
 class CardScraperApp(QtWidgets.QWidget):
@@ -26,7 +27,7 @@ class CardScraperApp(QtWidgets.QWidget):
         self.loading_label.setText("Loading...")
 
         try:
-            subprocess.run(['python', 'magic.py'], check=True)
+            do_magic()
             self.loading_label.setText("Complete")
         except subprocess.CalledProcessError:
             self.loading_label.setText("Error occurred")
