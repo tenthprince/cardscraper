@@ -81,13 +81,40 @@ def main():
                 rarity = rarity_match.group(1)
 
             # Wait for the price elements to be present in the DOM
-            price_elements = wait.until(ec.presence_of_all_elements_located((By.CSS_SELECTOR, "div.charts-price")))
+            price_elements = wait.until(
+                ec.presence_of_all_elements_located((By.CSS_SELECTOR, "div.charts-row div.charts-price")))
 
-            # Extract the regular price
-            market_price = price_elements[0].text if price_elements else 'N/A'
+            # Initialize market price and foil price as N/A
+            market_price = 'N/A'
+            foil_price = 'N/A'
 
-            # Extract the foil price if available
-            foil_price = price_elements[1].text if len(price_elements) > 1 else 'N/A'
+            # Check if price_elements exist and extract prices if available
+            if price_elements:
+                # Extract the market price
+                market_price_element = driver.find_element(By.CSS_SELECTOR,
+                                                           "div.charts-row:nth-child(1) div.charts-price")
+                market_price = market_price_element.text.strip() if market_price_element else 'N/A'
+
+                # Extract the foil market price if available
+                if price_elements:
+                    # Extract the market price
+                    market_price_element = driver.find_element(By.CSS_SELECTOR,
+                                                               "div.charts-row:nth-child(1) div.charts-price")
+                    market_price = market_price_element.text.strip() if market_price_element else 'N/A'
+
+                    # Extract the foil market price if available
+                    if len(price_elements) > 1:
+                        foil_price_element = driver.find_element(By.CSS_SELECTOR,
+                                                                 "div.charts-row:nth-child(2) div.charts-price")
+                        foil_price = foil_price_element.text.strip() if foil_price_element else 'N/A'
+                    else:
+                        foil_price_element = None  # Set foil_price_element as None when no foil price is available
+                        foil_price = 'N/A'
+
+                    # Handle the case when only one price element is present
+                    if not foil_price_element and market_price_element:
+                        foil_price = market_price
+                        market_price = 'N/A'
 
             # Adjust the card_url
             adjusted_card_url = card_url.rsplit('/', 1)[0] + '/'
